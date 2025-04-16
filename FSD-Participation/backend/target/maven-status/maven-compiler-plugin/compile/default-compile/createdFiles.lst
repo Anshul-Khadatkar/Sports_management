@@ -1,0 +1,4 @@
+com\example\Participation\ParticipationApplication.class
+com\example\Participation\Repository\ParticipationRepository.class
+com\example\Participation\Controller\ParticipationController.class
+com\example\Participation\Entity\Participation.class
