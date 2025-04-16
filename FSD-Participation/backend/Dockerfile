@@ -29,6 +29,9 @@ WORKDIR /app
 # Copy the built JAR from the build stage
 COPY --from=0 /app/target/Participation-0.0.1-SNAPSHOT.jar /app/Participation.jar
 
+# Install PostgreSQL client for any potential troubleshooting
+RUN apt-get update && apt-get install -y postgresql-client
+
 # Environment variables
 ENV SPRING_DATASOURCE_URL=jdbc:postgresql://dpg-cvqc1ore5dus73f6ncc0-a.oregon-postgres.render.com:5432/fsdproject_9hsk
 ENV SPRING_DATASOURCE_USERNAME=fsdproject_9hsk_user
@@ -38,5 +41,9 @@ ENV SPRING_PROFILES_ACTIVE=prod
 # Expose the port
 EXPOSE 8080
 
-# Run the Spring Boot application
-CMD ["java", "-jar", "Participation.jar"]
+# Run the Spring Boot application with explicit DB parameters
+CMD ["java", \
+    "-Dspring.datasource.url=${SPRING_DATASOURCE_URL}", \
+    "-Dspring.datasource.username=${SPRING_DATASOURCE_USERNAME}", \
+    "-Dspring.datasource.password=${SPRING_DATASOURCE_PASSWORD}", \
+    "-jar", "Participation.jar"]
