@@ -1,0 +1,11 @@
+[build]
+  command = "npm install && npm run build"
+  publish = "dist/social-media-app"
+
+[build.environment]
+  NODE_VERSION = "19"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 

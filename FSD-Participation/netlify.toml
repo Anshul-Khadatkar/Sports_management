@@ -1,0 +1,19 @@
+[build]
+  # Base directory is the frontend Angular project
+  base = "FSD-Participation/frontend"
+  
+  # Angular build command
+  command = "npm install && npm run build"
+  
+  # Angular output directory (dist/[project-name])
+  publish = "dist/social-media-app"
+
+# Environment variables
+[build.environment]
+  NODE_VERSION = "19" # Match your Angular version
+
+# Handle Angular routing by redirecting all requests to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
