@@ -14,6 +14,7 @@ import {
 } from 'rxjs';
 import { TokenService } from './token.service';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 export interface User {
   id: number;
@@ -28,7 +29,7 @@ export class AuthService {
   private userSubject = new BehaviorSubject<User | null>(null);
   public user$ = this.userSubject.asObservable();
 
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -80,14 +81,26 @@ export class AuthService {
       .pipe(catchError(this.handleError.bind(this)));
   }
 
-  login(username: string, password: string): Observable<{ token: string; user: User }> {
-    console.log('Sending login request with username:', username, 'and password:', password);
+  login(
+    username: string,
+    password: string
+  ): Observable<{ token: string; user: User }> {
+    console.log(
+      'Sending login request with username:',
+      username,
+      'and password:',
+      password
+    );
     return this.http
-      .post<{ token: string; user: User }>(`${this.apiUrl}/register/login`, { username, password }, {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-        }),
-      })
+      .post<{ token: string; user: User }>(
+        `${this.apiUrl}/register/login`,
+        { username, password },
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+          }),
+        }
+      )
       .pipe(
         tap((response) => {
           console.log('Login success response:', response);
@@ -96,8 +109,7 @@ export class AuthService {
         }),
         catchError(this.handleError.bind(this))
       );
-}
-
+  }
 
   register(
     name: string,
@@ -137,8 +149,8 @@ export class AuthService {
   }
 
   getParticipatedEvents(username: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/user/${username}/participated-events`)
+    return this.http
+      .get<string[]>(`${this.apiUrl}/user/${username}/participated-events`)
       .pipe(catchError(this.handleError.bind(this)));
   }
-  
 }

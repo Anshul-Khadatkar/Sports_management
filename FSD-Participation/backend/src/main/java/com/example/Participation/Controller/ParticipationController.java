@@ -13,11 +13,10 @@ import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;   
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class ParticipationController {
 
@@ -40,30 +39,31 @@ public class ParticipationController {
 
         } catch (Exception e) {
             logger.error("Error occurred while fetching participation data.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching data.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while fetching data.");
         }
     }
 
     @GetMapping("/user/{username}/participated-events")
-public ResponseEntity<Object> getParticipatedEvents(@PathVariable String username) {
-    try {
-        // Get all participation records for the user
-        List<Participation> participations = participationRepo.findByUsername(username);
+    public ResponseEntity<Object> getParticipatedEvents(@PathVariable String username) {
+        try {
+            // Get all participation records for the user
+            List<Participation> participations = participationRepo.findByUsername(username);
 
-        if (participations.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No participated events found.");
+            if (participations.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No participated events found.");
+            }
+
+            // Extract the event names from the participation records
+            List<String> events = participations.stream().map(Participation::geteventName).collect(Collectors.toList());
+
+            return ResponseEntity.ok(events);
+        } catch (Exception e) {
+            logger.error("Error fetching participated events.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while fetching participated events.");
         }
-
-        // Extract the event names from the participation records
-        List<String> events = participations.stream().map(Participation::geteventName).collect(Collectors.toList());
-
-        return ResponseEntity.ok(events);
-    } catch (Exception e) {
-        logger.error("Error fetching participated events.", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching participated events.");
     }
-}
-
 
     @GetMapping("/data/{p_id}")
     public ResponseEntity<Object> getParticipationById(@PathVariable Long p_id) {
@@ -110,29 +110,30 @@ public ResponseEntity<Object> getParticipatedEvents(@PathVariable String usernam
     }
 
     @PutMapping("/update/{p_id}")
-    public ResponseEntity<Object> updateParticipation(@PathVariable Long p_id, @RequestBody Participation updatedParticipation) {
+    public ResponseEntity<Object> updateParticipation(@PathVariable Long p_id,
+            @RequestBody Participation updatedParticipation) {
         logger.info("Updating participation with ID: {}", p_id);
         try {
             Optional<Participation> existingParticipation = participationRepo.findById(p_id);
-    
+
             if (existingParticipation.isPresent()) {
                 Participation participation = existingParticipation.get();
-    
+
                 // Manually map eventName to event and medicalCondition to medCond
                 participation.seteventName(updatedParticipation.geteventName());
                 participation.setmedicalCondition(updatedParticipation.getmedicalCondition());
-    
+
                 // Update other fields
                 participation.setReferralSource(updatedParticipation.getReferralSource());
                 participation.setDepartment(updatedParticipation.getDepartment());
                 participation.setGender(updatedParticipation.getGender());
                 participation.setType(updatedParticipation.getType());
                 participation.setAge(updatedParticipation.getAge());
-    
+
                 participationRepo.save(participation);
-    
+
                 logger.info("Updated participation with ID: {}", p_id);
-    
+
                 // Return a JSON response
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "Participation with ID " + p_id + " updated successfully.");
@@ -143,7 +144,7 @@ public ResponseEntity<Object> getParticipatedEvents(@PathVariable String usernam
                 response.put("error", "No participation found with ID: " + p_id);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Return JSON response
             }
-    
+
         } catch (Exception e) {
             logger.error("Error updating participation.", e);
             Map<String, String> response = new HashMap<>();
@@ -151,8 +152,6 @@ public ResponseEntity<Object> getParticipatedEvents(@PathVariable String usernam
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Return JSON response
         }
     }
-    
-    
 
     @PostMapping("/add")
     public ResponseEntity<Object> addParticipant(@RequestBody Participation newParticipation) {

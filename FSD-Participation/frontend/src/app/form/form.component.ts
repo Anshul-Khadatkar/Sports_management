@@ -8,6 +8,7 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-form',
@@ -64,7 +65,6 @@ export class FormComponent implements OnInit {
     'Relay Race',
     'Sprint',
     'Kabaddi',
-    
   ];
   departments = [
     'Computer Science Engineering',
@@ -81,7 +81,11 @@ export class FormComponent implements OnInit {
     'Other',
   ];
 
-  constructor(private fb: FormBuilder, public router: Router, private http: HttpClient) {}
+  constructor(
+    private fb: FormBuilder,
+    public router: Router,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.userEmail = localStorage.getItem('username') || '';
@@ -106,7 +110,7 @@ export class FormComponent implements OnInit {
   }
 
   loadUserParticipation(username: string): void {
-    this.http.get<any[]>(`http://localhost:8080/data`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/data`).subscribe({
       next: (data) => {
         console.log('Loaded user data:', data);
         const userRecord = data.find((item) => item.username === username);
@@ -120,7 +124,7 @@ export class FormComponent implements OnInit {
             type: userRecord.type,
             age: userRecord.age,
             gender: userRecord.gender,
-            eventName: userRecord.eventName || '',  // Use fallback if undefined or null
+            eventName: userRecord.eventName || '', // Use fallback if undefined or null
             department: userRecord.department,
             medicalCondition: userRecord.medicalCondition || '',
           });
@@ -138,38 +142,41 @@ export class FormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading user participation data', err);
-      }
+      },
     });
   }
   onSubmit(): void {
     if (this.registrationForm.invalid) {
       return;
     }
-  
+
     const formValue = {
       ...this.registrationForm.getRawValue(),
       username: this.userEmail,
-      eventName: this.registrationForm.get('eventName')?.value || '',  // Fallback to empty string
-      medicalCondition: this.registrationForm.get('medicalCondition')?.value || '',  // Fallback to empty string
+      eventName: this.registrationForm.get('eventName')?.value || '', // Fallback to empty string
+      medicalCondition:
+        this.registrationForm.get('medicalCondition')?.value || '', // Fallback to empty string
     };
-  
-    console.log('Form Value:', formValue);  // Debugging line to check data
-  
+
+    console.log('Form Value:', formValue); // Debugging line to check data
+
     this.isSubmitting = true;
-  
+
     if (this.hasExistingData && this.p_ID) {
-      this.http.put(`http://localhost:8080/update/${this.p_ID}`, formValue).subscribe({
-        next: () => {
-          this.router.navigate(['/success']);
-        },
-        error: (err) => {
-          this.errorMessage = 'Failed to update data.';
-          console.error(err);
-          this.isSubmitting = false;
-        },
-      });
+      this.http
+        .put(`${environment.apiUrl}/update/${this.p_ID}`, formValue)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/success']);
+          },
+          error: (err) => {
+            this.errorMessage = 'Failed to update data.';
+            console.error(err);
+            this.isSubmitting = false;
+          },
+        });
     } else {
-      this.http.post(`http://localhost:8080/add`, formValue).subscribe({
+      this.http.post(`${environment.apiUrl}/add`, formValue).subscribe({
         next: () => {
           this.router.navigate(['/success']);
         },
@@ -181,8 +188,6 @@ export class FormComponent implements OnInit {
       });
     }
   }
-  
-  
 
   navigateBack(): void {
     this.router.navigate(['/dashboard']);

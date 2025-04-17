@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ParticipationService {
-
-  private baseUrl: string = 'http://localhost:8080/data';
-  constructor(private http: HttpClient) { }
+  private baseUrl: string = `${environment.apiUrl}/data`;
+  constructor(private http: HttpClient) {}
 
   // Get participation data
   getParticipation(username: string): Observable<any> {
